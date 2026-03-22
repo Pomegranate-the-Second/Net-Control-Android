@@ -1,0 +1,79 @@
+package com.rangebit.net_control_a.ui.measurement
+
+import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.rangebit.net_control_a.data.source.network.MeasurementManager
+import com.rangebit.net_control_a.domain.event.MeasurementEvent
+import com.rangebit.net_control_a.ui.main.AppIntent
+import com.rangebit.net_control_a.ui.main.AppState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class MeasurementViewModelFactory(
+    private val measurementManager: MeasurementManager
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MeasurementViewModel::class.java)) {
+            return MeasurementViewModel(measurementManager) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+class MeasurementViewModel(
+    private val measurementManager: MeasurementManager
+) : ViewModel() {
+
+    private val _state = MutableStateFlow<AppState>(AppState.Idle)
+    val state: StateFlow<AppState> = _state
+
+    private val _downloadSpeed = MutableStateFlow(0.0)
+    val downloadSpeed: StateFlow<Double> = _downloadSpeed
+
+    private val _uploadSpeed = MutableStateFlow(0.0)
+    val uploadSpeed: StateFlow<Double> = _uploadSpeed
+
+    fun handleIntent(intent: AppIntent, context: Context) {
+        when (intent) {
+            is AppIntent.StartMeasurement -> startMeasurement(context)
+            is AppIntent.OpenMap -> {
+                // навигация через Activity
+            }
+            is AppIntent.OpenSettings -> {}
+        }
+    }
+
+    private fun startMeasurement(context: Context) {
+        viewModelScope.launch {
+
+            _state.value = AppState.Measuring
+
+            measurementManager.startMeasurement(context)
+                .collect { event ->
+
+                    when (event) {
+
+                        is MeasurementEvent.DownloadProgress -> {
+                            _downloadSpeed.value = event.speed
+                        }
+
+                        is MeasurementEvent.UploadProgress -> {
+                            _uploadSpeed.value = event.speed
+                        }
+
+                        is MeasurementEvent.Completed -> {
+                            _state.value = AppState.Success(event.data)
+                        }
+
+                        is MeasurementEvent.Error -> {
+                            _state.value = AppState.Error(event.message)
+                        }
+                    }
+                }
+        }
+    }
+}

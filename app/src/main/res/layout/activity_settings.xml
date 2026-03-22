@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <!-- Назад -->
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:src="@android:drawable/ic_media_previous"
+            android:background="@null"
+            android:contentDescription="Settings"
+            android:layout_height="50dp"
+            android:layout_width="50dp"/>
+        <!-- Режим -->
+        <TextView
+            android:text="Проф. режим"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchMode"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+        <!-- Данные -->
+        <TextView
+            android:text="Данные"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+        <Button
+            android:id="@+id/btnLoadData"
+            android:text="Выбрать файл"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+        <!-- Аналитика -->
+        <TextView
+            android:text="Аналитика"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+        <EditText
+            android:id="@+id/etAnalytics"
+            android:hint="Введите URL"
+            android:importantForAutofill="no"
+            android:inputType="textUri"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+    </LinearLayout>
+</ScrollView>
