@@ -39,6 +39,7 @@ class SpeedTest {
                     var bytesSinceLast = 0L
                     var totalBytes = 0L
 
+                    var ticksCount = 19
                     var read: Int
                     while (input.read(buffer).also { read = it } != -1) {
                         bytesSinceLast += read
@@ -50,11 +51,12 @@ class SpeedTest {
                             val speedMbps = (bytesSinceLast * 8.0) / (seconds * 1_000_000)
                             samples.add(SpeedSample(now - startTime, speedMbps))
                             callback.onProgress(speedMbps)
+                            ticksCount--
                             bytesSinceLast = 0
                             lastSampleTime = now
                         }
 
-                        if (now - startTime >= durationSeconds * 1000L) break
+                        if (now - startTime >= durationSeconds * 1000L && ticksCount < 1) break
                     }
 
                     input.close()
@@ -85,12 +87,14 @@ class SpeedTest {
                     conn.setChunkedStreamingMode(0)
 
                     val output: OutputStream = conn.outputStream
-                    val buffer = ByteArray(16 * 1024)
+                    val buffer = ByteArray( 1)
 
                     val startTime = System.currentTimeMillis()
                     var lastSampleTime = startTime
                     var bytesSinceLast = 0L
                     var totalBytes = 0L
+
+                    var ticksCount = 19
 
                     while (true) {
                         output.write(buffer)
@@ -103,11 +107,12 @@ class SpeedTest {
                             val speedMbps = (bytesSinceLast * 8.0) / (seconds * 1_000_000)
                             samples.add(SpeedSample(now - startTime, speedMbps))
                             callback.onProgress(speedMbps)
+                            ticksCount--
                             bytesSinceLast = 0
                             lastSampleTime = now
                         }
 
-                        if (now - startTime >= durationSeconds * 1000L) break
+                        if (now - startTime >= durationSeconds * 1000L && ticksCount < 1) break
                     }
 
                     output.flush()

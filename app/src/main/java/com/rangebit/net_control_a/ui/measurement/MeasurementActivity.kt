@@ -1,6 +1,7 @@
 package com.rangebit.net_control_a.ui.measurement
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
@@ -114,14 +115,20 @@ class MeasurementActivity : AppCompatActivity() {
 
         downloadSet = LineDataSet(mutableListOf(), "Download Mbps").apply {
             lineWidth = 2f
-            setDrawCircles(false)
+            setDrawCircles(true)
             setDrawValues(false)
+            color = Color.GREEN
+            setCircleColor(Color.BLACK)  // Точки черные
+            setCircleRadius(4f)
         }
 
         uploadSet = LineDataSet(mutableListOf(), "Upload Mbps").apply {
             lineWidth = 2f
-            setDrawCircles(false)
+            setDrawCircles(true)
             setDrawValues(false)
+            color = Color.BLUE
+            setCircleColor(Color.BLACK)  // Точки черные
+            setCircleRadius(4f)
         }
 
         lineData = LineData(downloadSet, uploadSet)
