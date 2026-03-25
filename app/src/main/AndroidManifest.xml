@@ -18,6 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".ui.measurement.MeasurementActivity"/>
+        <activity android:name=".ui.map.MapActivity"/>
+        <activity android:name=".ui.settings.SettingsActivity"/>
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true"

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -29,6 +30,8 @@ class MeasurementActivity : AppCompatActivity() {
     private lateinit var lineData: LineData
     private lateinit var downloadSet: LineDataSet
     private lateinit var uploadSet: LineDataSet
+    private lateinit var textViewD: TextView
+    private lateinit var textViewU: TextView
 
     private val viewModel: MeasurementViewModel by viewModels {
         MeasurementViewModelFactory(MeasurementManager())
@@ -38,6 +41,9 @@ class MeasurementActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_measurement)
+
+        textViewD = findViewById<TextView>(R.id.speedTrackerDownlink)
+        textViewU = findViewById<TextView>(R.id.speedTrackerUplink)
 
         initChart()
         observeViewModel()
@@ -83,8 +89,28 @@ class MeasurementActivity : AppCompatActivity() {
             }
 
             launch {
+                viewModel.avgDownloadSpeed.collect { speed ->
+                    if (speed == 0.0) {
+                        textViewD.text = "Скорость downlink: ... Mbps"
+                    } else {
+                        textViewD.text = "Скорость downlink: $speed Mbps"
+                    }
+                }
+            }
+
+            launch {
                 viewModel.uploadSpeed.collect { speed ->
                     addUploadPoint(speed)
+                }
+            }
+
+            launch {
+                viewModel.avgUploadSpeed.collect { speed ->
+                    if (speed == 0.0) {
+                        textViewU.text = "Скорость uplink: ... Mbps"
+                    } else {
+                        textViewU.text = "Скорость uplink: $speed Mbps"
+                    }
                 }
             }
         }

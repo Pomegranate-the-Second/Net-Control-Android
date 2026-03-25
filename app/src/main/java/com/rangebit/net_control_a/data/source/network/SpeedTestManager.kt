@@ -61,6 +61,7 @@ class MeasurementManager {
 
                     override fun onComplete(avg: Double, samples: List<SpeedSample>) {
                         data.download = lastDownloadSpeed
+                        trySend(MeasurementEvent.DownloadCompleted(lastDownloadSpeed))
 
                         var lastUploadSpeed = 0.0
 
@@ -77,6 +78,7 @@ class MeasurementManager {
 
                                 override fun onComplete(avg: Double, samples: List<SpeedSample>) {
                                     data.upload = avg.takeIf { it > 0 } ?: lastUploadSpeed
+                                    trySend(MeasurementEvent.UploadCompleted(lastUploadSpeed))
                                     trySend(MeasurementEvent.Completed(data))
                                     ApiClient.sendMeasurement(data)
                                     close()

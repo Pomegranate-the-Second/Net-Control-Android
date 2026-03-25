@@ -32,8 +32,14 @@ class MainViewModel(
     private val _downloadSpeed = MutableStateFlow(0.0)
     val downloadSpeed: StateFlow<Double> = _downloadSpeed
 
+    private val _avgDownloadSpeed = MutableStateFlow(0.0)
+    val avgDownloadSpeed: StateFlow<Double> = _avgDownloadSpeed
+
     private val _uploadSpeed = MutableStateFlow(0.0)
     val uploadSpeed: StateFlow<Double> = _uploadSpeed
+
+    private val _avgUploadSpeed = MutableStateFlow(0.0)
+    val avgUploadSpeed: StateFlow<Double> = _avgUploadSpeed
 
     fun handleIntent(intent: AppIntent, context: Context) {
         when (intent) {
@@ -59,8 +65,16 @@ class MainViewModel(
                             _downloadSpeed.value = event.speed
                         }
 
+                        is MeasurementEvent.DownloadCompleted -> {
+                            _avgDownloadSpeed.value = event.speed
+                        }
+
                         is MeasurementEvent.UploadProgress -> {
                             _uploadSpeed.value = event.speed
+                        }
+
+                        is MeasurementEvent.UploadCompleted -> {
+                            _avgUploadSpeed.value = event.speed
                         }
 
                         is MeasurementEvent.Completed -> {
