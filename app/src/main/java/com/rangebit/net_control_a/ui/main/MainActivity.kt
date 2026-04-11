@@ -14,22 +14,28 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.utils.Utils
 import com.rangebit.net_control_a.R
+import com.rangebit.net_control_a.data.source.location.LocationManager
 import com.rangebit.net_control_a.data.source.network.MeasurementManager
 import com.rangebit.net_control_a.ui.map.MapActivity
 import com.rangebit.net_control_a.ui.measurement.MeasurementActivity
 import com.rangebit.net_control_a.ui.settings.SettingsActivity
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import kotlin.jvm.java
 
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels {
-        MainViewModelFactory(MeasurementManager())
+        MainViewModelFactory(LocationManager())
     }
+
+    private var cnt = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Timber.plant(Timber.DebugTree())
 
         setContentView(R.layout.activity_main)
 
@@ -48,7 +54,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        Timber.tag("TEST").d("Latitude: no, Longitude: no")
+
         observeViewModel()
+
+        viewModel.handleIntent(AppIntent.StartLocating, this)
+
+
     }
 
     private fun observeViewModel() {
@@ -61,8 +73,9 @@ class MainActivity : AppCompatActivity() {
 
                         is AppState.Idle -> {}
 
-                        is AppState.Measuring -> {
-                            Toast.makeText(this@MainActivity, "Измерение...", Toast.LENGTH_SHORT).show()
+                        is AppState.Locating -> {
+                            Timber.tag("LOCATION").d("Not in use! Latitude: ..., Longitude: ...")
+                            Toast.makeText(this@MainActivity, "Определение...", Toast.LENGTH_SHORT).show()
                         }
 
                         is AppState.Success -> {
@@ -77,6 +90,16 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+
+            launch {
+                viewModel.location.collect { data ->
+
+                        cnt++
+                        Timber.tag("PLOCATION")
+                            .d("${cnt}. Latitude: ${data?.latitude}, Longitude: ${data?.longitude}")
+                    }
+            }
+
 
         }
     }

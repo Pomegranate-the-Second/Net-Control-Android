@@ -50,6 +50,7 @@ class MeasurementViewModel(
                 // навигация через Activity
             }
             is AppIntent.OpenSettings -> {}
+            else -> {}
         }
     }
 

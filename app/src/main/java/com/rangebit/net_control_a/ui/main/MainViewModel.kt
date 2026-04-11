@@ -4,88 +4,101 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.rangebit.net_control_a.data.source.location.LocationManager
 import com.rangebit.net_control_a.data.source.network.MeasurementManager
+import com.rangebit.net_control_a.domain.event.LocationEvent
 import com.rangebit.net_control_a.domain.event.MeasurementEvent
+import com.rangebit.net_control_a.domain.model.MeasurementData
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class MainViewModelFactory(
-    private val measurementManager: MeasurementManager
+    private val locationManager: LocationManager
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            return MainViewModel(measurementManager) as T
+            return MainViewModel(locationManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
 class MainViewModel(
-    private val measurementManager: MeasurementManager
+    private val locationManager: LocationManager
 ) : ViewModel() {
 
+    private val _location = MutableStateFlow<MeasurementData?>(null)
+    val location: MutableStateFlow<MeasurementData?> = _location
     private val _state = MutableStateFlow<AppState>(AppState.Idle)
     val state: StateFlow<AppState> = _state
 
-    private val _downloadSpeed = MutableStateFlow(0.0)
-    val downloadSpeed: StateFlow<Double> = _downloadSpeed
-
-    private val _avgDownloadSpeed = MutableStateFlow(0.0)
-    val avgDownloadSpeed: StateFlow<Double> = _avgDownloadSpeed
-
-    private val _uploadSpeed = MutableStateFlow(0.0)
-    val uploadSpeed: StateFlow<Double> = _uploadSpeed
-
-    private val _avgUploadSpeed = MutableStateFlow(0.0)
-    val avgUploadSpeed: StateFlow<Double> = _avgUploadSpeed
 
     fun handleIntent(intent: AppIntent, context: Context) {
         when (intent) {
-            is AppIntent.StartMeasurement -> startMeasurement(context)
+            is AppIntent.StartLocating -> startPeriodicLocationUpdates(context)
             is AppIntent.OpenMap -> {
                 // навигация через Activity
             }
             is AppIntent.OpenSettings -> {}
+            else -> {}
         }
     }
 
-    private fun startMeasurement(context: Context) {
+    fun startPeriodicLocationUpdates(context: Context) {
         viewModelScope.launch {
 
-            _state.value = AppState.Measuring
+            _state.value = AppState.Locating
 
-            measurementManager.startMeasurement(context)
+            locationManager.startLocationCollection(context)
+                .catch { event ->
+                    _state.value = AppState.Error(event.message ?: "Unknown error")
+                }
                 .collect { event ->
-
                     when (event) {
-
-                        is MeasurementEvent.DownloadProgress -> {
-                            _downloadSpeed.value = event.speed
+                        is LocationEvent.Completed -> {}
+                        is LocationEvent.Result -> {
+                            Timber.tag("VIEW").d("Search me V 1!")
+                            _location.value = event.data
                         }
-
-                        is MeasurementEvent.DownloadCompleted -> {
-                            _avgDownloadSpeed.value = event.speed
-                        }
-
-                        is MeasurementEvent.UploadProgress -> {
-                            _uploadSpeed.value = event.speed
-                        }
-
-                        is MeasurementEvent.UploadCompleted -> {
-                            _avgUploadSpeed.value = event.speed
-                        }
-
-                        is MeasurementEvent.Completed -> {
-                            _state.value = AppState.Success(event.data)
-                        }
-
-                        is MeasurementEvent.Error -> {
+                        is LocationEvent.Error -> {
                             _state.value = AppState.Error(event.message)
                         }
                     }
                 }
         }
     }
+
+
+    /*
+    private fun startPeriodicLocationUpdates(context: Context) {
+        viewModelScope.launch {
+
+            _state.value = AppState.Measuring
+
+            locationManager.startLocationCollection(context)
+                .collect { event ->
+
+                    when (event) {
+
+                        is LocationEvent.Result -> {
+                            _state.value = AppState.Locating(event.data)
+                        }
+                        is LocationEvent.Error -> {
+                            _state.value = AppState.Error(event.message)
+                        }
+                    }
+
+                }
+        }
+    }
+
+     */
 }

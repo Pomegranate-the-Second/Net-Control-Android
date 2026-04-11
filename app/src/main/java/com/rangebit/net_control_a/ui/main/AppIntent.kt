@@ -4,4 +4,5 @@ sealed class AppIntent {
     object StartMeasurement : AppIntent()
     object OpenMap : AppIntent()
     object OpenSettings : AppIntent()
+    object StartLocating : AppIntent()
 }
