@@ -23,6 +23,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import timber.log.Timber
+import android.provider.Settings
 
 class LocationManager {
 
@@ -77,10 +78,37 @@ class LocationManager {
                 override fun onLocationResult(result: LocationResult) {
                     for (location in result.locations) {
 
+                        val prev = lastLocation
+
+                        /*
+                        if (prev != null && location.distanceTo(prev) < MIN_DISTANCE_METERS) {
+                            continue
+                        }
+
+                         */
+
+
+                        lastLocation = location
+
+                        val data = MeasurementData().apply {
+                            latitude = location.latitude
+                            longitude = location.longitude
+
+                            deviceID = Settings.Secure.getString(
+                                activity.contentResolver,
+                                Settings.Secure.ANDROID_ID
+                            )
+                        }
+
+                        /*
                         val data = MeasurementData().apply {
                             latitude = location.latitude
                             longitude = location.longitude
                         }
+
+                         */
+
+                        CellTowerHelper.fillCellData(activity, data)
 
                         trySend(LocationEvent.Result(data))
                     }

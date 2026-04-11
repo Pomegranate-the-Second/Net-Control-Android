@@ -95,8 +95,8 @@ class MainActivity : AppCompatActivity() {
                 viewModel.location.collect { data ->
 
                         cnt++
-                        Timber.tag("PLOCATION")
-                            .d("${cnt}. Latitude: ${data?.latitude}, Longitude: ${data?.longitude}")
+                        Timber.tag("PMEASURE")
+                            .d("${cnt}.Device State: deviceID=${data?.deviceID}, lat=${data?.latitude}, lon=${data?.longitude}, mnc=${data?.mnc}, cid=${data?.cid}, pci=${data?.pci}, upload=${data?.upload}, download=${data?.download}, rsrp=${data?.rsrp}, rssi=${data?.rssi}")
                     }
             }
 
