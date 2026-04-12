@@ -14,14 +14,17 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.utils.Utils
+import com.google.gson.Gson
 import com.rangebit.net_control_a.R
 import com.rangebit.net_control_a.data.source.network.MeasurementManager
+import com.rangebit.net_control_a.domain.model.MeasurementData
 import com.rangebit.net_control_a.ui.main.AppIntent
 import com.rangebit.net_control_a.ui.main.AppState
 import com.rangebit.net_control_a.ui.main.MainActivity
 import com.rangebit.net_control_a.ui.main.MainViewModel
 import com.rangebit.net_control_a.ui.main.MainViewModelFactory
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import kotlin.getValue
 
 class MeasurementActivity : AppCompatActivity() {
@@ -41,6 +44,12 @@ class MeasurementActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_measurement)
+
+        val json = intent.getStringExtra("measurement_data_json")
+        val measurementData = Gson().fromJson(json, MeasurementData::class.java)
+        measurementData?.let {
+            Timber.tag("MEASUREMENT").d("Received data: $it")
+        }
 
         textViewD = findViewById<TextView>(R.id.speedTrackerDownlink)
         textViewU = findViewById<TextView>(R.id.speedTrackerUplink)

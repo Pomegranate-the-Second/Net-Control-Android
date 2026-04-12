@@ -13,9 +13,11 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.utils.Utils
+import com.google.gson.Gson
 import com.rangebit.net_control_a.R
 import com.rangebit.net_control_a.data.source.location.LocationManager
 import com.rangebit.net_control_a.data.source.network.MeasurementManager
+import com.rangebit.net_control_a.domain.model.MeasurementData
 import com.rangebit.net_control_a.ui.map.MapActivity
 import com.rangebit.net_control_a.ui.measurement.MeasurementActivity
 import com.rangebit.net_control_a.ui.settings.SettingsActivity
@@ -31,6 +33,8 @@ class MainActivity : AppCompatActivity() {
 
     private var cnt = 0
 
+    private var lastMeasurementData: MeasurementData? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +44,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<Button>(R.id.btnStartTest).setOnClickListener {
-            val intent = Intent(this, MeasurementActivity::class.java)
+            val intent = Intent(this, MeasurementActivity::class.java).apply {
+                val gson = Gson()
+                val json = gson.toJson(lastMeasurementData)
+                putExtra("measurement_data_json", json)
+            }
             startActivity(intent)
         }
 
@@ -93,7 +101,7 @@ class MainActivity : AppCompatActivity() {
 
             launch {
                 viewModel.location.collect { data ->
-
+                        lastMeasurementData = data
                         cnt++
                         Timber.tag("PMEASURE")
                             .d("${cnt}.Device State: deviceID=${data?.deviceID}, lat=${data?.latitude}, lon=${data?.longitude}, mnc=${data?.mnc}, cid=${data?.cid}, pci=${data?.pci}, upload=${data?.upload}, download=${data?.download}, rsrp=${data?.rsrp}, rssi=${data?.rssi}")
