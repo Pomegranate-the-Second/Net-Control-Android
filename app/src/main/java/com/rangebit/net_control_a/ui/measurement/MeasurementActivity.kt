@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -23,6 +24,7 @@ import com.rangebit.net_control_a.ui.main.AppState
 import com.rangebit.net_control_a.ui.main.MainActivity
 import com.rangebit.net_control_a.ui.main.MainViewModel
 import com.rangebit.net_control_a.ui.main.MainViewModelFactory
+import com.rangebit.net_control_a.ui.settings.SettingsActivity
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.getValue
@@ -60,6 +62,12 @@ class MeasurementActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnCancel).setOnClickListener {
             finish()
         }
+
+        findViewById<ImageButton>(R.id.btnSettings).setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+
         viewModel.handleIntent(AppIntent.StartMeasurement, this)
 
     }

@@ -1,5 +1,6 @@
 package com.rangebit.net_control_a.ui.main
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -40,6 +41,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         Timber.plant(Timber.DebugTree())
+
+        val prefs = getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+
+        val isProfessional = prefs.getBoolean("professional_mode", false)
+
+        if (isProfessional) {
+            val intent = Intent(this, MapActivity::class.java)
+            startActivity(intent)
+        }
 
         setContentView(R.layout.activity_main)
 

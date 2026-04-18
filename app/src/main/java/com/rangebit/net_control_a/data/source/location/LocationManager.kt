@@ -62,7 +62,9 @@ class LocationManager {
         var callback: com.google.android.gms.location.LocationCallback? = null
 
         var lastLocation: Location? = null
+        var lastUpdateTime: Long = 0
         val MIN_DISTANCE_METERS = 10f
+        val MAX_TIME_WITHOUT_UPDATE_MS = 30000L
 
         LocationHelper.requestLocationPermission(activity) {
 
@@ -80,13 +82,13 @@ class LocationManager {
 
                         val prev = lastLocation
 
-                        /*
+                        val currentTime = System.currentTimeMillis()
                         if (prev != null && location.distanceTo(prev) < MIN_DISTANCE_METERS) {
-                            continue
+                            if (currentTime - lastUpdateTime < MAX_TIME_WITHOUT_UPDATE_MS) {
+                                continue
+                            }
                         }
-
-                         */
-
+                        lastUpdateTime = currentTime
 
                         lastLocation = location
 
